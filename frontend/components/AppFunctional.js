@@ -7,7 +7,6 @@ const initialMessage = "";
 const initialEmail = "";
 const initialSteps = 0;
 const initialIndex = 4;
-
 const grid = [
   "(1, 1)",
   "(2, 1)",
@@ -25,7 +24,7 @@ export default function AppFunctional(props) {
   const [message, setMessage] = useState(initialMessage);
   const [mail, setMail] = useState(initialEmail);
   const [step, setStep] = useState(initialSteps);
-  const [coord, setCoord] = useState({ x: 2, y: 2 });
+  //const [coord, setCoord] = useState({ x: 2, y: 2 });
 
   // AŞAĞIDAKİ HELPERLAR SADECE ÖNERİDİR.
   // Bunları silip kendi mantığınızla sıfırdan geliştirebilirsiniz.
@@ -40,14 +39,28 @@ export default function AppFunctional(props) {
     // Kullanıcı için "Koordinatlar (2, 2)" mesajını izlemek için bir state'in olması gerekli değildir.
     // Koordinatları almak için yukarıdaki "getXY" helperını ve ardından "getXYMesaj"ı kullanabilirsiniz.
     // tamamen oluşturulmuş stringi döndürür.
-    if (yon === "left") {
+    /*if (yon === "left") {
       setMessage("Sola gidemezsiniz");
     } else if (yon === "right") {
       setMessage("Sağa gidemezsiniz");
     } else if (yon === "up") {
-      setMessage("Yukarı gidemezsiniz");
+      setMessage("Yukarıya gidemezsiniz");
     } else if (yon === "down") {
-      setMessage("Aşağı gidemezsiniz");
+      setMessage("Aşağıya gidemezsiniz");
+    }*/
+    switch (yon) {
+      case "left":
+        setMessage("Sola gidemezsiniz");
+        break;
+      case "up":
+        setMessage("Yukarıya gidemezsiniz");
+        break;
+      case "right":
+        setMessage("Sağa gidemezsiniz");
+        break;
+      case "down":
+        setMessage("Aşağıya gidemezsiniz");
+        break;
     }
   }
 
@@ -57,7 +70,7 @@ export default function AppFunctional(props) {
     setMail(initialEmail);
     setMessage(initialMessage);
     setStep(initialSteps);
-    setCoord({ x: 2, y: 2 });
+    // setCoord({ x: 2, y: 2 });
   }
 
   function sonrakiIndex(yon) {
@@ -72,12 +85,12 @@ export default function AppFunctional(props) {
     if (yon === "left" && !(index % 3 === 0)) {
       setStep(step + 1);
       setIndex(index - 1);
-    } else if (yon === "right" && !(index % 3 === 2)) {
-      setStep(step + 1);
-      setIndex(index + 1);
     } else if (yon === "up" && index / 3 >= 1) {
       setStep(step + 1);
       setIndex(index - 3);
+    } else if (yon === "right" && !(index % 3 === 2)) {
+      setStep(step + 1);
+      setIndex(index + 1);
     } else if (yon === "down" && index / 3 < 2) {
       setStep(step + 1);
       setIndex(index + 3);
@@ -93,16 +106,21 @@ export default function AppFunctional(props) {
   function onSubmit(evt) {
     // payloadu POST etmek için bir submit handlera da ihtiyacınız var.
     evt.preventDefault();
-    const formData = {
+    /*const formData = {
       x: coord.x,
       y: coord.y,
       steps: step,
       email: mail,
-    };
+    };*/
     axios
-      .post("http://localhost:9000/api/result", formData)
+      .post("http://localhost:9000/api/result", {
+        x: grid[index][1],
+        y: grid[index][4],
+        steps: step,
+        email: mail,
+      })
       .then((response) => {
-        console.log(response.data.message);
+        //console.log(response.data.message);
         setMessage(response.data.message);
       })
       .catch((error) => {
@@ -130,7 +148,11 @@ export default function AppFunctional(props) {
         <h3 id="message">{message} </h3>
       </div>
       <div id="keypad">
-        <button onClick={(e) => ilerle(e.target.id)} id="left">
+        <button
+          data-testid="sol-buton"
+          onClick={(e) => ilerle(e.target.id)}
+          id="left"
+        >
           SOL
         </button>
         <button onClick={(e) => ilerle(e.target.id)} id="up">
@@ -152,6 +174,7 @@ export default function AppFunctional(props) {
           value={mail}
           id="email"
           type="email"
+          data-testid="mail-input"
           placeholder="email girin"
         ></input>
         <input id="submit" type="submit"></input>
